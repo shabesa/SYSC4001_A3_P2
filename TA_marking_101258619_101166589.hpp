@@ -14,12 +14,14 @@
 // Rubric Texts
 #define MAX_RUBRIC_TEXT_LENGTH 10
 
-// Shared memory keys
-#define SHM_KEY 1234
-#define SHM_SIZE sizeof(SharedMemoryAccess)
-
 // Maximum number of exam files
 #define MAX_EXAM_FILES 100
+
+// Semaphore names for Part 2B
+#define SEM_RUBRIC_MUTEX "/sem_rubric_mutex"
+#define SEM_RUBRIC_READER_COUNT "/sem_reader_count"
+#define SEM_EXAM_MUTEX "/sem_exam_mutex"
+#define SEM_QUESTION_PREFIX "/sem_question_"
 
 /*
  * Structure for the rubric of an exercise
@@ -53,7 +55,12 @@ struct SharedMemoryAccess {
     SharedMemoryExam exam; // Pointer to exam in shared memory
     int exam_idx; // Index of the current exam
     int is_processed; // Flag to indicate if the exams are processed
+    int reader_count; // Number of active TAs or accessing rubric
 };
+
+// Shared memory keys
+#define SHM_KEY 1234
+#define SHM_SIZE sizeof(SharedMemoryAccess)
 
 // Function Declarations
 
@@ -133,5 +140,19 @@ void ta_process(int ta_id, pid_t pid,
  * @param max_seconds Maximum delay in seconds.
  */
 void random_delay(double min_seconds, double max_seconds);
+
+// Part 2B function declarations
+
+/*
+ * Initializes all semaphores needed for synchronization.
+ * @return 1 if successful, 0 otherwise
+ */
+int init_semaphores();
+
+/*
+ * Cleans up and removes all semaphores.
+ */
+void cleanup_semaphores();
+
 
 #endif // TA_MARKING_HPP
